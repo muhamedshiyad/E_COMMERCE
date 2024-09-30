@@ -1,5 +1,5 @@
 const express = require('express');
-const { createproduct, updateproduct, deleteproduct, getProduct } = require('../../controllers.js/productcontroller');
+const { createproduct, updateproduct, deleteproduct, getProduct, getproductDetails } = require('../../controllers.js/productcontroller');
 const { upload } = require('../../middlewares/multer');
 const { adminAuth } = require('../../middlewares/adminAuth');
 const { userAuth } = require('../../middlewares/userAuth');
@@ -7,6 +7,7 @@ const { userAuth } = require('../../middlewares/userAuth');
 const router =express.Router();
 
 router.get("/product-list",getProduct);
+router.get('/details/:productId',getproductDetails)
 router.post('/create',adminAuth,upload.single("image"),createproduct)
 router.put('/update/:productId',adminAuth,upload.single("image"), updateproduct);
 router.delete('/delete:productId',adminAuth,deleteproduct);

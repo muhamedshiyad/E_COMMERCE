@@ -1,12 +1,12 @@
 import React from 'react'
-import { Header } from '../components/Header'
 import { Footer } from '../components/Footer'
 import { Outlet } from 'react-router-dom'
+import { UserHeader } from '../components/user/UserHeader'
 
-export const RootLayout = () => {
+export const UserLayout = () => {
   return (
     <div>
-        <Header/>
+      <UserHeader/>
         <div className='min-h-96 bg-gray-400 flex-1 text-primary-content font-bold '>
         <Outlet/>
         </div>

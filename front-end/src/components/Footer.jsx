@@ -1,9 +1,11 @@
 import React from 'react'
+import {Link} from 'react-router-dom'
 
 export const Footer = () => {
   return (
     <footer className="footer footer-center bg-slate-100 text-primary-content p-10">
     <aside>
+    <Link to={'/admin-signup'}>login as a admin</Link>
       <svg
         width="50"
         height="50"

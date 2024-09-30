@@ -2,60 +2,66 @@ const { cloudinaryInstance } = require("../config/cloudinary Config");
 const { Product } = require("../models/productModel");
 const producteRouter = require("../routes/v1/producteRouter");
 const { handleImageUpload } = require("../utils/imageupload");
-const createproduct = async (req,res,next)=>{
+
+const createproduct = async (req, res, next) => {
     try {
-        const user = req.user;
+        console.log("create product route hitted");
+        console.log(req.file,"====== image on controller");
 
-        const{title,description,duration,price,}=req.body;
-        let imageurl;
+        const { title, description, duration, price, mentor } = req.body;
+        let imageUrl;
 
-        if(!title || !description || !duration || !price){
-           return res.status(400).json({message : 'all field required'})
+        if (!title || !description || !duration || !price) {
+            return res.status(400).json({ message: "all fields required" });
         }
 
-        const isproductExist = await Product.findOne({title});
+        const isProductExist = await Product.findOne({ title });
 
-        if(isproductExist){
-            return res.status(400).json({ success : false,message : 'product already exist'})
+        if (isProductExist) {
+            return res.status(400).json({ success: false, message: "product already exist" });
         }
 
-        if(req.file){
-           imageurl= await  handleImageUpload(req.file.path)
+        if (req.file) {
+        const uploadResult = await cloudinaryInstance.uploader.upload(req.file.path);
+        imageUrl=uploadResult.url
+        console.log(uploadResult,"=====upload result");
         }
 
-       const newproduct = new Product({ title, description, duration, image:imageurl && imageurl, price, });
-       if (user.role === "admin") newproduct.admin = user.id;
-         await newproduct.save();
+       
+        const newProduct = new Product({ title, description, duration, image: imageUrl, price, mentor });
+        await newProduct.save();
 
-        res.status(201).json({ success : true, message:"product created successfully"});
+        res.status(201).json({ success: true, message: "product created successfully" });
     } catch (error) {
-        next(error)
+        next(error);
     }
 };
-const updateproduct = async (req,res,next)=>{
+const updateproduct = async (req, res, next) => {
     try {
-        const {productId} = req.params;
+        const { productId } = req.params;
 
-        const{title,description,duration,price,}=req.body;
-        let imageurl;
+        const { title, description, duration, price, mentor } = req.body;
+        let imageUrl;
 
-        const isproductExist = await Product.findOne({ _id : productId});
+        const isProductExist = await Product.findOne({ _id: productId });
 
-        if(!isproductExist){
-            return res.status(400).json({ success : false,message : 'product does not exist'})
-        }
-        if(req.file){
-           imageurl= await  handleImageUpload(req.file.path)
+        if (!isProductExist) {
+            return res.status(400).json({ success: false, message: "product does not exist" });
         }
 
-        const updatedproduct = await Product.findOneAndUpdate(
-            {_id:productId},
-            {title,description,duration,price},
-            {new:true});
+        if (req.file) {
+            imageUrl = await handleImageUpload(req.file.path);
+        }
 
-        res.status(200).json({ success : true, message:"product updated successfully",data : updatedproduct});
+        const updatedProduct = await Product.findOneAndUpdate(
+            { _id: productId },
+            { title, description, duration, price, mentor, image : imageUrl },
+            { new: true }
+        );
+
+        res.status(200).json({ success: true, message: "course updated successfully", data: updatedProduct });
     } catch (error) {
-        next(error)
+        next(error);
     }
 };
 const deleteproduct = async (req,res,next)=>{
@@ -73,13 +79,25 @@ const deleteproduct = async (req,res,next)=>{
 };
 const getProduct = async (req, res, next) => {
     try {
-        const Products = await Product.find().select("-syllabus");
+        const Products = await Product.find();
 
-        res.status(200).json({ success: true, message: "courses fetched", data: Products });
+        res.status(200).json({ success: true, message: "products fetched", data: Products });
+    } catch (error) {
+        next(error);
+    }
+};
+const getproductDetails = async (req, res, next) => {
+    try {
+
+        const {productId}=req.params;
+
+        const ProductDetails = await Product.findById(productId);
+
+        res.status(200).json({ success: true, message: "product fetched", data: ProductDetails });
     } catch (error) {
         next(error);
     }
 };
 
-module.exports = {createproduct,updateproduct,deleteproduct,getProduct}
+module.exports = {createproduct,updateproduct,deleteproduct,getProduct,getproductDetails}
 

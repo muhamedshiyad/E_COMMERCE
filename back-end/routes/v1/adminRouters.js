@@ -13,7 +13,7 @@ router.put('/update', );
 router.delete('/delete', );
 
 router.get("/userList");
-
+router.get("/check-admin",adminAuth,checkadmin)
 
 router.get("/some-end-point",adminAuth);
 
